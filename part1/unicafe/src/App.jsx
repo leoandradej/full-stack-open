@@ -10,17 +10,28 @@ const Statistics = ({ good, neutral, bad, total, average, positive }) => {
         "No feedback given"
       ) : (
         <>
-          <p>good: {good}</p>
-          <p>neutral: {neutral}</p>
-          <p>bad: {bad}</p>
-          <p>all: {total}</p>
-          <p>average: {average.toFixed(2)}</p>
-          <p>positive: {positive.toFixed(1)}%</p>
+          <StatisticLine text="good" value={good} />
+          <StatisticLine text="neutral" value={neutral} />
+          <StatisticLine text="bad" value={bad} />
+          <StatisticLine text="total" value={total} />
+          <StatisticLine text="average" value={average.toFixed(2)} />
+          <StatisticLine text="positive" value={positive.toFixed(1)} />
         </>
       )}
     </>
   );
 };
+
+const StatisticLine = ({ text, value }) =>
+  text === "positive" ? (
+    <p>
+      {text}: {value}%
+    </p>
+  ) : (
+    <p>
+      {text}: {value}
+    </p>
+  );
 
 const App = () => {
   const [good, setGood] = useState(0);
