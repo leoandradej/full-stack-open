@@ -7,6 +7,10 @@ const App = () => {
   const [neutral, setNeutral] = useState(0);
   const [bad, setBad] = useState(0);
 
+  const total = good + neutral + bad;
+  const average = total === 0 ? 0 : (good * 1 + neutral * 0 + bad * -1) / total;
+  const positive = total === 0 ? 0 : (good / total) * 100;
+
   const handleClick = (e) => {
     if (e.target.innerText === "good") {
       setGood(good + 1);
@@ -28,6 +32,9 @@ const App = () => {
       <p>good: {good}</p>
       <p>neutral: {neutral}</p>
       <p>bad: {bad}</p>
+      <p>all: {total}</p>
+      <p>average: {average.toFixed(2)}</p>
+      <p>positive: {positive.toFixed(1)}%</p>
     </div>
   );
 };
