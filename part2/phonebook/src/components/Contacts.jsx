@@ -20,7 +20,7 @@ const Contacts = ({ persons, setPersons, search }) => {
   return (
     <div>
       {filteredPersons.map((person) => (
-        <p key={person.name}>
+        <p key={person.id}>
           {person.name} {person.number}
           <button onClick={() => handleDeleteContact(person.id, person.name)}>
             delete

@@ -16,14 +16,36 @@ const ContactForm = ({ persons, setPersons }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (
       persons.some(
         (person) => person["name"].toLowerCase() === newName.toLowerCase()
       )
     ) {
-      alert(`${newName} is already added to phonebook`);
+      alert(
+        `${newName} is already added to phonebook, replace the old number with a new one?`
+      );
+      const contact = persons.find(
+        (person) => person.name.toLowerCase() === newName.toLowerCase()
+      );
+      const updatedContact = { ...contact, number: newNumber };
+
+      contactService
+        .updateContact(contact.id, updatedContact)
+        .then((returnedContact) => {
+          setPersons(
+            persons.map((person) =>
+              person.id === contact.id ? returnedContact : person
+            )
+          );
+          setNewName("");
+          setNewNumber("");
+        })
+        .catch((error) => console.error("Failed to update contact: ", error));
+
       return;
     }
+
     const newContact = {
       name: capitalizeName(newName),
       number: newNumber,
