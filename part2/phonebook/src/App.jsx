@@ -2,17 +2,17 @@ import { useState } from "react";
 import Searchbar from "./components/Searchbar";
 import ContactForm from "./components/ContactForm";
 import Contacts from "./components/Contacts";
-import axios from "axios";
 import { useEffect } from "react";
+import contactService from "./services/contacts";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/persons")
-      .then((response) => setPersons(response.data));
+    contactService
+      .getAll()
+      .then((initialContacts) => setPersons(initialContacts));
   }, []);
 
   return (

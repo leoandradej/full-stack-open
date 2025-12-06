@@ -1,4 +1,5 @@
 import { useState } from "react";
+import contactService from "../services/contacts";
 
 const ContactForm = ({ persons, setPersons }) => {
   const [newName, setNewName] = useState("");
@@ -23,17 +24,16 @@ const ContactForm = ({ persons, setPersons }) => {
       alert(`${newName} is already added to phonebook`);
       return;
     }
-    setPersons((prev) => [
-      ...prev,
-      {
-        name: capitalizeName(newName),
-        number: newNumber,
-        id: String(persons.length + 1),
-      },
-    ]);
+    const newContact = {
+      name: capitalizeName(newName),
+      number: newNumber,
+    };
 
-    setNewName("");
-    setNewNumber("");
+    contactService.create(newContact).then((returnedContact) => {
+      setPersons(persons.concat(returnedContact));
+      setNewName("");
+      setNewNumber("");
+    });
   };
 
   const handleNewName = (e) => {
