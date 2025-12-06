@@ -21,7 +21,7 @@ const App = () => {
       <Searchbar search={search} setSearch={setSearch} />
       <ContactForm persons={persons} setPersons={setPersons} />
       <h2>Numbers</h2>
-      <Contacts persons={persons} search={search} />
+      <Contacts persons={persons} setPersons={setPersons} search={search} />
     </div>
   );
 };

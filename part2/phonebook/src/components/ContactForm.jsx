@@ -29,7 +29,7 @@ const ContactForm = ({ persons, setPersons }) => {
       number: newNumber,
     };
 
-    contactService.create(newContact).then((returnedContact) => {
+    contactService.createContact(newContact).then((returnedContact) => {
       setPersons(persons.concat(returnedContact));
       setNewName("");
       setNewNumber("");
