@@ -10,6 +10,7 @@ const App = () => {
   const [persons, setPersons] = useState([]);
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState(null);
+  const [messageStatus, setMessageStatus] = useState("");
 
   useEffect(() => {
     contactService
@@ -20,12 +21,13 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={message} className="success" />
+      <Notification message={message} className={messageStatus} />
       <Searchbar search={search} setSearch={setSearch} />
       <ContactForm
         persons={persons}
         setPersons={setPersons}
         setMessage={setMessage}
+        setMessageStatus={setMessageStatus}
       />
       <h2>Numbers</h2>
       <Contacts persons={persons} setPersons={setPersons} search={search} />

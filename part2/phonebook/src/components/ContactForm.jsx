@@ -1,7 +1,7 @@
 import { useState } from "react";
 import contactService from "../services/contacts";
 
-const ContactForm = ({ persons, setPersons, setMessage }) => {
+const ContactForm = ({ persons, setPersons, setMessage, setMessageStatus }) => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
 
@@ -33,6 +33,7 @@ const ContactForm = ({ persons, setPersons, setMessage }) => {
       contactService
         .updateContact(contact.id, updatedContact)
         .then((returnedContact) => {
+          setMessageStatus("success");
           setMessage(`${returnedContact.name} phone number updated`);
           setTimeout(() => {
             setMessage(null);
@@ -45,7 +46,15 @@ const ContactForm = ({ persons, setPersons, setMessage }) => {
           setNewName("");
           setNewNumber("");
         })
-        .catch((error) => console.error("Failed to update contact: ", error));
+        .catch((error) => {
+          setMessageStatus("error");
+          setMessage(
+            `Information of ${contact.name} has already been removed from server`
+          );
+          setTimeout(() => {
+            setMessage(null);
+          }, 5000);
+        });
 
       return;
     }
@@ -56,6 +65,7 @@ const ContactForm = ({ persons, setPersons, setMessage }) => {
     };
 
     contactService.createContact(newContact).then((returnedContact) => {
+      setMessageStatus("success");
       setMessage(`Added ${returnedContact.name}`);
       setTimeout(() => {
         setMessage(null);
