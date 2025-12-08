@@ -4,6 +4,7 @@ import axios from "axios";
 
 const App = () => {
   const [countries, setCountries] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
   const BASE_URL = "https://studies.cs.helsinki.fi/restcountries/api";
@@ -17,6 +18,12 @@ const App = () => {
 
   const handleCountrySearch = (e) => {
     setSearchTerm(e.target.value);
+    setSelectedCountry(null);
+  };
+
+  const handleDisplayDetails = (countryName) => {
+    const country = countries.find((c) => c.name.common === countryName);
+    setSelectedCountry(country);
   };
 
   let filteredCountries = [];
@@ -26,6 +33,10 @@ const App = () => {
       country["name"].common.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }
+
+  const countryToDisplay =
+    selectedCountry ||
+    (filteredCountries.length === 1 ? filteredCountries[0] : null);
 
   const renderCountries = () => {
     if (searchTerm === "") {
@@ -37,34 +48,42 @@ const App = () => {
     }
 
     if (filteredCountries.length > 1) {
-      return filteredCountries.map((country) => (
-        <p key={country.name.common}>{country.name.common}</p>
+      return filteredCountries.map((c) => (
+        <div key={c.name.common}>
+          <p>
+            {c.name.common}{" "}
+            <button onClick={() => handleDisplayDetails(c.name.common)}>
+              show
+            </button>
+          </p>
+        </div>
       ));
     }
 
-    if (filteredCountries.length === 1) {
-      const country = filteredCountries[0];
-      return (
-        <div>
-          <h1>{country.name.common}</h1>
-          <p>Capital: {country.capital?.[0]}</p>
-          <p>Area: {country.area}</p>
-          <h2>Languages</h2>
-          <ul>
-            {Object.values(country.languages).map((language) => (
-              <li key={language}>{language}</li>
-            ))}
-          </ul>
-          <img
-            src={country.flags.png}
-            alt={`Flag of ${country.name.common}`}
-            width="200"
-          />
-        </div>
-      );
-    }
-
     return null;
+  };
+
+  const renderCountryDetails = () => {
+    if (!countryToDisplay) return null;
+
+    return (
+      <div>
+        <h1>{countryToDisplay.name.common}</h1>
+        <p>Capital: {countryToDisplay.capital?.[0]}</p>
+        <p>Area: {countryToDisplay.area}</p>
+        <h2>Languages</h2>
+        <ul>
+          {Object.values(countryToDisplay.languages || {}).map((language) => (
+            <li key={language}>{language}</li>
+          ))}
+        </ul>
+        <img
+          src={countryToDisplay.flags.png}
+          alt={`Flag of ${countryToDisplay.name.common}`}
+          width="200"
+        />
+      </div>
+    );
   };
 
   return (
@@ -74,6 +93,7 @@ const App = () => {
         <input type="text" value={searchTerm} onChange={handleCountrySearch} />
       </div>
       {renderCountries()}
+      {renderCountryDetails()}
     </div>
   );
 };
