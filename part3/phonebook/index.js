@@ -48,6 +48,40 @@ app.get("/api/persons/:id", (request, response) => {
   }
 });
 
+const generateId = (length) => {
+  const randomId = Math.random()
+    .toString(36)
+    .substring(2, length + 2);
+
+  return String(randomId);
+};
+
+app.post("/api/persons", (request, response) => {
+  const body = request.body;
+
+  if (!body.name) {
+    return response.status(400).json({
+      error: "Name Missing",
+    });
+  }
+
+  if (!body.number) {
+    return response.status(400).json({
+      error: "Number Missing",
+    });
+  }
+
+  const person = {
+    id: generateId(persons.length),
+    name: body.name,
+    number: body.number,
+  };
+
+  persons = persons.concat(person);
+
+  response.json(person);
+});
+
 app.delete("/api/persons/:id", (request, response) => {
   const id = request.params.id;
   persons = persons.filter((person) => person.id !== id);
