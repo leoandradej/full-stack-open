@@ -17,63 +17,79 @@ const ContactForm = ({ persons, setPersons, setMessage, setMessageStatus }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (
-      persons.some(
-        (person) => person["name"].toLowerCase() === newName.toLowerCase()
-      )
-    ) {
-      alert(
-        `${newName} is already added to phonebook, replace the old number with a new one?`
-      );
-      const contact = persons.find(
-        (person) => person.name.toLowerCase() === newName.toLowerCase()
-      );
-      const updatedContact = { ...contact, number: newNumber };
+    // Check if contact already exists in the frontend state
+    const existingContact = persons.find(
+      (person) => person.name.toLowerCase() === newName.toLowerCase()
+    );
 
-      contactService
-        .updateContact(contact.id, updatedContact)
-        .then((returnedContact) => {
-          setMessageStatus("success");
-          setMessage(`${returnedContact.name} phone number updated`);
-          setTimeout(() => {
-            setMessage(null);
-          }, 5000);
-          setPersons(
-            persons.map((person) =>
-              person.id === contact.id ? returnedContact : person
-            )
-          );
-          setNewName("");
-          setNewNumber("");
-        })
-        .catch((error) => {
-          setMessageStatus("error");
-          setMessage(
-            `Information of ${contact.name} has already been removed from server`
-          );
-          setTimeout(() => {
-            setMessage(null);
-          }, 5000);
-        });
+    if (existingContact) {
+      if (
+        window.confirm(
+          `${newName} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        const updatedContact = { ...existingContact, number: newNumber };
 
+        contactService
+          .updateContact(existingContact.id, updatedContact)
+          .then((returnedContact) => {
+            setMessageStatus("success");
+            setMessage(`${returnedContact.name}'s phone number updated`);
+            setTimeout(() => {
+              setMessage(null);
+            }, 5000);
+            setPersons(
+              persons.map((person) =>
+                person.id === existingContact.id ? returnedContact : person
+              )
+            );
+            setNewName("");
+            setNewNumber("");
+          })
+          .catch((error) => {
+            setMessageStatus("error");
+            setMessage(
+              `Information of ${existingContact.name} has already been removed from server`
+            );
+            setTimeout(() => {
+              setMessage(null);
+            }, 5000);
+            setPersons(persons.filter((p) => p.id !== existingContact.id));
+          });
+      }
       return;
     }
 
+    // Create new contact
     const newContact = {
       name: capitalizeName(newName),
       number: newNumber,
     };
 
-    contactService.createContact(newContact).then((returnedContact) => {
-      setMessageStatus("success");
-      setMessage(`Added ${returnedContact.name}`);
-      setTimeout(() => {
-        setMessage(null);
-      }, 5000);
-      setPersons(persons.concat(returnedContact));
-      setNewName("");
-      setNewNumber("");
-    });
+    contactService
+      .createContact(newContact)
+      .then((returnedContact) => {
+        setMessageStatus("success");
+        setMessage(`Added ${returnedContact.name}`);
+        setTimeout(() => {
+          setMessage(null);
+        }, 5000);
+        setPersons(persons.concat(returnedContact));
+        setNewName("");
+        setNewNumber("");
+      })
+      .catch((error) => {
+        setMessageStatus("error");
+        // Handle duplicate name error from database
+        if (error.response && error.response.status === 400) {
+          setMessage(error.response.data.error || "Error adding contact");
+        } else {
+          setMessage("Error adding contact");
+        }
+        setTimeout(() => {
+          setMessage(null);
+        }, 5000);
+      });
   };
 
   const handleNewName = (e) => {
@@ -88,11 +104,17 @@ const ContactForm = ({ persons, setPersons, setMessage, setMessageStatus }) => {
     <form onSubmit={handleSubmit}>
       <h2>Add a New Contact</h2>
       <div>
-        name: <input type="text" value={newName} onChange={handleNewName} />
+        name:{" "}
+        <input type="text" value={newName} onChange={handleNewName} required />
       </div>
       <div>
         number:{" "}
-        <input type="phone" value={newNumber} onChange={handleNewNumber} />
+        <input
+          type="tel"
+          value={newNumber}
+          onChange={handleNewNumber}
+          required
+        />
       </div>
       <div>
         <button type="submit">add</button>
