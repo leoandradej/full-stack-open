@@ -5,6 +5,16 @@ const Contact = require("./models/contact");
 
 const app = express();
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  }
+
+  next(error);
+};
+
 morgan.token("body", (req) => JSON.stringify(req.body));
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body")
@@ -27,7 +37,7 @@ app.get("/info", (request, response) => {
   });
 });
 
-app.get("/api/persons/:id", (request, response) => {
+app.get("/api/persons/:id", (request, response, next) => {
   Contact.findById(request.params.id)
     .then((contact) => {
       if (contact) {
@@ -36,10 +46,7 @@ app.get("/api/persons/:id", (request, response) => {
         response.status(404).end();
       }
     })
-    .catch((error) => {
-      console.log(error);
-      response.status(400).send({ error: "malformatted id" });
-    });
+    .catch((error) => next(error));
 });
 
 app.post("/api/persons", (request, response) => {
@@ -68,7 +75,7 @@ app.post("/api/persons", (request, response) => {
     });
 });
 
-app.put("/api/persons/:id", (request, response) => {
+app.put("/api/persons/:id", (request, response, next) => {
   const { number } = request.body;
 
   Contact.findByIdAndUpdate(
@@ -83,27 +90,23 @@ app.put("/api/persons/:id", (request, response) => {
         response.status(404).end();
       }
     })
-    .catch((error) => {
-      console.log(error);
-      if (error.name === "ValidationError") {
-        return response.status(400).json({ error: error.message });
-      } else if (error.name === "CastError") {
-        return response.status(400).send({ error: "malformatted id" });
-      }
-      response.status(500).json({ error: "something went wrong" });
-    });
+    .catch((error) => next(error));
 });
 
-app.delete("/api/persons/:id", (request, response) => {
+app.delete("/api/persons/:id", (request, response, next) => {
   Contact.findByIdAndDelete(request.params.id)
     .then((result) => {
       response.status(204).end();
     })
-    .catch((error) => {
-      console.log(error);
-      response.status(400).send({ error: "malformatted id" });
-    });
+    .catch((error) => next(error));
 });
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(unknownEndpoint);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT);
