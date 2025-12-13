@@ -10,7 +10,16 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).json({ error: error.message });
+  } else if (error.code === 11000) {
+    return response.status(400).json({
+      error: "Name must be unique",
+    });
   }
+  response.status(500).json({
+    error: "Something went wrong",
+  });
 
   next(error);
 };
@@ -49,12 +58,10 @@ app.get("/api/persons/:id", (request, response, next) => {
     .catch((error) => next(error));
 });
 
-app.post("/api/persons", (request, response) => {
-  const body = request.body;
-
+app.post("/api/persons", (request, response, next) => {
   const contact = new Contact({
-    name: body.name,
-    number: body.number,
+    name: request.body.name,
+    number: request.body.number,
   });
 
   contact
@@ -62,17 +69,7 @@ app.post("/api/persons", (request, response) => {
     .then((savedContact) => {
       response.json(savedContact);
     })
-    .catch((error) => {
-      if (error.name === "ValidationError") {
-        return response.status(400).json({ error: error.message });
-      } else if (error.code === 11000) {
-        // Duplicate key error
-        return response.status(400).json({
-          error: "Name must be unique",
-        });
-      }
-      response.status(500).json({ error: "Something went wrong" });
-    });
+    .catch((error) => next(error));
 });
 
 app.put("/api/persons/:id", (request, response, next) => {
