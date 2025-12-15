@@ -1,44 +1,44 @@
-require("dotenv").config();
-const express = require("express");
-const morgan = require("morgan");
-const Contact = require("./models/contact");
+require('dotenv').config();
+const express = require('express');
+const morgan = require('morgan');
+const Contact = require('./models/contact');
 
 const app = express();
 
 const errorHandler = (error, request, response, next) => {
   console.error(error.message);
 
-  if (error.name === "CastError") {
-    return response.status(400).send({ error: "malformatted id" });
-  } else if (error.name === "ValidationError") {
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' });
+  } else if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message });
   } else if (error.code === 11000) {
     return response.status(400).json({
-      error: "Name must be unique",
+      error: 'Name must be unique',
     });
   }
   response.status(500).json({
-    error: "Something went wrong",
+    error: 'Something went wrong',
   });
 
   next(error);
 };
 
-morgan.token("body", (req) => JSON.stringify(req.body));
+morgan.token('body', req => JSON.stringify(req.body));
 app.use(
-  morgan(":method :url :status :res[content-length] - :response-time ms :body")
+  morgan(':method :url :status :res[content-length] - :response-time ms :body')
 );
-app.use(express.static("dist"));
+app.use(express.static('dist'));
 app.use(express.json());
 
-app.get("/api/persons", (request, response) => {
-  Contact.find({}).then((contacts) => {
+app.get('/api/persons', (request, response) => {
+  Contact.find({}).then(contacts => {
     response.json(contacts);
   });
 });
 
-app.get("/info", (request, response) => {
-  Contact.countDocuments({}).then((count) => {
+app.get('/info', (request, response) => {
+  Contact.countDocuments({}).then(count => {
     response.send(
       `<p>Phonebook has info for ${count} people</p>
       <p>${Date()}</p>`
@@ -46,19 +46,19 @@ app.get("/info", (request, response) => {
   });
 });
 
-app.get("/api/persons/:id", (request, response, next) => {
+app.get('/api/persons/:id', (request, response, next) => {
   Contact.findById(request.params.id)
-    .then((contact) => {
+    .then(contact => {
       if (contact) {
         response.json(contact);
       } else {
         response.status(404).end();
       }
     })
-    .catch((error) => next(error));
+    .catch(error => next(error));
 });
 
-app.post("/api/persons", (request, response, next) => {
+app.post('/api/persons', (request, response, next) => {
   const contact = new Contact({
     name: request.body.name,
     number: request.body.number,
@@ -66,13 +66,13 @@ app.post("/api/persons", (request, response, next) => {
 
   contact
     .save()
-    .then((savedContact) => {
+    .then(savedContact => {
       response.json(savedContact);
     })
-    .catch((error) => next(error));
+    .catch(error => next(error));
 });
 
-app.put("/api/persons/:id", (request, response, next) => {
+app.put('/api/persons/:id', (request, response, next) => {
   const { number } = request.body;
 
   Contact.findByIdAndUpdate(
@@ -80,26 +80,26 @@ app.put("/api/persons/:id", (request, response, next) => {
     { number },
     { new: true, runValidators: true }
   )
-    .then((updatedContact) => {
+    .then(updatedContact => {
       if (updatedContact) {
         response.json(updatedContact);
       } else {
         response.status(404).end();
       }
     })
-    .catch((error) => next(error));
+    .catch(error => next(error));
 });
 
-app.delete("/api/persons/:id", (request, response, next) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   Contact.findByIdAndDelete(request.params.id)
-    .then((result) => {
+    .then(result => {
       response.status(204).end();
     })
-    .catch((error) => next(error));
+    .catch(error => next(error));
 });
 
 const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: "unknown endpoint" });
+  response.status(404).send({ error: 'unknown endpoint' });
 };
 
 app.use(unknownEndpoint);
