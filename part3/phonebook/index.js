@@ -92,7 +92,7 @@ app.put('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Contact.findByIdAndDelete(request.params.id)
-    .then(result => {
+    .then(() => {
       response.status(204).end();
     })
     .catch(error => next(error));
