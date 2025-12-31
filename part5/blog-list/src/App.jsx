@@ -1,21 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Blog from './components/Blog';
 import BlogForm from './components/BlogForm';
 import LoginForm from './components/LoginForm';
 import Notification from './components/Notification';
+import Toggable from './components/Togglable';
 import blogService from './services/blogs';
 import loginService from './services/login';
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [user, setUser] = useState(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogUser');
     return loggedUserJSON ? JSON.parse(loggedUserJSON) : null;
   });
   const [message, setMessage] = useState(null);
   const [messageStatus, setMessageStatus] = useState('');
+
+  const blogFormRef = useRef();
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -32,19 +33,15 @@ const App = () => {
 
   if (user) blogService.setToken(user.token);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-
+  const login = async (credentials) => {
     try {
-      const user = await loginService.login({ username, password });
+      const user = await loginService.login(credentials);
 
       window.localStorage.setItem('loggedBlogUser', JSON.stringify(user));
 
       blogService.setToken(user.token);
 
       setUser(user);
-      setUsername('');
-      setPassword('');
     } catch (error) {
       setMessageStatus('error');
       if (error.response && error.response.status === 401) {
@@ -63,37 +60,120 @@ const App = () => {
     setUser(null);
   };
 
+  const addBlog = async (newBlog) => {
+    try {
+      blogFormRef.current.toggleVisibility();
+      const returnedBlog = await blogService.createBlog(newBlog);
+      setBlogs((prevBlogs) => prevBlogs.concat(returnedBlog));
+
+      setMessageStatus('success');
+      setMessage(
+        `a new blog "${returnedBlog.title}" by ${returnedBlog.author} added`
+      );
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
+    } catch (error) {
+      setMessageStatus('error');
+      if (error.response && error.response.status === 400) {
+        setMessage(error.response.data.error || 'Error adding blog');
+      } else {
+        setMessage('Error adding blog');
+      }
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
+    }
+  };
+
+  const updateBlog = async (updatedBlog) => {
+    try {
+      const returnedBlog = await blogService.updateBlog(
+        updatedBlog.id,
+        updatedBlog
+      );
+      setBlogs((prevBlogs) =>
+        prevBlogs.map((blog) =>
+          blog.id === returnedBlog.id ? returnedBlog : blog
+        )
+      );
+
+      setMessageStatus('success');
+      setMessage('blog updated successfully');
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
+    } catch (error) {
+      setMessageStatus('error');
+      if (error.response && error.response.status === 400) {
+        setMessage(error.response.data.error || 'Error updating blog');
+      } else {
+        setMessage('Error updating blog');
+      }
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
+    }
+  };
+
+  const deleteBlog = async (id) => {
+    try {
+      await blogService.deleteBlog(id);
+      setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== id));
+
+      setMessageStatus('success');
+      setMessage('blog was deleted');
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
+    } catch (error) {
+      setMessageStatus('error');
+      if (error.response && error.response.status === 400) {
+        setMessage(error.response.data.error || 'Error deleting blog');
+      } else {
+        setMessage('Error deleting blog');
+      }
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
+    }
+  };
+
   return (
     <div>
       {!user ? (
         <>
-          <LoginForm
-            handleLogin={handleLogin}
-            username={username}
-            setUsername={setUsername}
-            password={password}
-            setPassword={setPassword}
-          />
           <Notification message={message} className={messageStatus} />
+          <Toggable buttonLabel="login">
+            <LoginForm login={login} />
+          </Toggable>
         </>
       ) : (
-        <div>
-          <p>{user.name} logged in</p>
-          <button onClick={handleLogout}>logout</button>
+        <div className="wrapper">
+          <div className="header">
+            <p>{user.name} logged in</p>
+            <button onClick={handleLogout}>logout</button>
+          </div>
 
-          <h2>blogs</h2>
-          <Notification message={message} className={messageStatus} />
-          {blogs
-            .filter((blog) => blog.user?.name === user.name)
-            .map((blog) => (
-              <Blog key={blog.id} blog={blog} />
-            ))}
+          <div className="blogs">
+            <h2>blogs</h2>
+            <Notification message={message} className={messageStatus} />
+            {blogs
+              .filter((blog) => blog.user?.name === user.name)
+              .sort((a, b) => b.likes - a.likes)
+              .map((blog) => (
+                <Blog
+                  key={blog.id}
+                  blog={blog}
+                  updateBlog={updateBlog}
+                  deleteBlog={deleteBlog}
+                />
+              ))}
+          </div>
 
-          <BlogForm
-            setBlogs={setBlogs}
-            setMessage={setMessage}
-            setMessageStatus={setMessageStatus}
-          />
+          <Toggable buttonLabel="create a new blog" ref={blogFormRef}>
+            <BlogForm createBlog={addBlog} />
+          </Toggable>
         </div>
       )}
     </div>

@@ -1,3 +1,47 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1rem;
+}
+
+p {
+  margin: 0;
+}
+
+button {
+  display: inline-block;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #23424a;
+  font-weight: 900;
+  background-color: #38cfd9;
+  padding: 0.75em 2em;
+  border-radius: 100px;
+  cursor: pointer;
+}
+
+button:hover,
+button:focus {
+  opacity: 0.75;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+form button {
+  margin-bottom: 0.5rem;
+}
+
 .success,
 .error {
   background-color: lightgray;
@@ -16,8 +60,42 @@
   color: red;
 }
 
-form {
+.wrapper {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.blogs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.blog {
+  max-width: 30rem;
+  border: 0.2rem solid gray;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.2rem 0;
+}
+
+.blog button {
+  font-size: 0.5rem;
+  padding: 0.2rem 0.75rem;
+}
+
+.likes {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
