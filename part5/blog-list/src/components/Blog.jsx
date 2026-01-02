@@ -9,10 +9,13 @@ const Blog = ({ blog, updateBlog, deleteBlog }) => {
   };
 
   const handleDelete = () => {
-    window.confirm(
-      `Are you sure you want to delete "${blog.title}" by ${blog.author}?`
-    );
-    deleteBlog(blog.id);
+    if (
+      window.confirm(
+        `Are you sure you want to delete "${blog.title}" by ${blog.author}?`
+      )
+    ) {
+      deleteBlog(blog.id);
+    }
   };
 
   return (
