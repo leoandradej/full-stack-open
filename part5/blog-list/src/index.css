@@ -80,7 +80,7 @@ form button {
 }
 
 .blog {
-  max-width: 30rem;
+  max-width: 15rem;
   border: 0.2rem solid gray;
   display: flex;
   align-items: center;

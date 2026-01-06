@@ -1,6 +1,6 @@
 import Togglable from './Togglable';
 
-const Blog = ({ blog, updateBlog, deleteBlog }) => {
+const Blog = ({ user, blog, updateBlog, deleteBlog }) => {
   const handleUpdate = () => {
     updateBlog({
       ...blog,
@@ -26,11 +26,13 @@ const Blog = ({ blog, updateBlog, deleteBlog }) => {
       <Togglable buttonLabel="view">
         <p>{blog.url}</p>
         <div className="likes">
-          <p>{blog.likes}</p>
+          <p className="likes-count">likes {blog.likes}</p>
           <button onClick={handleUpdate}>like</button>
         </div>
         <p>{blog.user.name}</p>
-        <button onClick={handleDelete}>remove</button>
+        {user.name === blog.user.name && (
+          <button onClick={handleDelete}>remove</button>
+        )}
       </Togglable>
     </div>
   );

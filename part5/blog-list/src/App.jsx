@@ -98,11 +98,11 @@ const App = () => {
         )
       );
 
-      setMessageStatus('success');
-      setMessage('blog updated successfully');
-      setTimeout(() => {
-        setMessage(null);
-      }, 5000);
+      // setMessageStatus('success');
+      // setMessage('blog updated successfully');
+      // setTimeout(() => {
+      //   setMessage(null);
+      // }, 5000);
     } catch (error) {
       setMessageStatus('error');
       if (error.response && error.response.status === 400) {
@@ -159,11 +159,11 @@ const App = () => {
             <h2>blogs</h2>
             <Notification message={message} className={messageStatus} />
             {blogs
-              .filter((blog) => blog.user?.name === user.name)
               .sort((a, b) => b.likes - a.likes)
               .map((blog) => (
                 <Blog
                   key={blog.id}
+                  user={user}
                   blog={blog}
                   updateBlog={updateBlog}
                   deleteBlog={deleteBlog}
