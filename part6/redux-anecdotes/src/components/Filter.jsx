@@ -3,6 +3,7 @@ import { filterChange } from '../reducers/filterReducer';
 
 const Filter = () => {
   const dispatch = useDispatch();
+
   const handleChange = (e) => {
     dispatch(filterChange(e.target.value));
   };
