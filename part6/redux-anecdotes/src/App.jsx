@@ -4,8 +4,7 @@ import AnecdoteForm from './components/AnecdoteForm';
 import AnecdotesList from './components/AnecdotesList';
 import Filter from './components/Filter';
 import Notification from './components/Notification';
-import { setAnecdotes } from './reducers/anecdoteReducer';
-import anecdoteService from './services/anecdotes';
+import { initializeAnecdotes } from './reducers/anecdoteReducer';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -13,8 +12,7 @@ const App = () => {
   useEffect(() => {
     const fetchAnecdotes = async () => {
       try {
-        const anecdotes = await anecdoteService.getAll();
-        dispatch(setAnecdotes(anecdotes));
+        dispatch(initializeAnecdotes());
       } catch (error) {
         console.error('Failed to fetch anecdotes', error);
       }
