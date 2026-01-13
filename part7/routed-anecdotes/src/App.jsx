@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, Route, Routes, useMatch, useNavigate } from 'react-router-dom';
+import { useField } from './hooks';
 
 const Menu = () => {
   const padding = {
@@ -79,25 +80,31 @@ const Footer = () => (
 );
 
 const CreateNew = ({ addNew }) => {
-  const [content, setContent] = useState('');
-  const [author, setAuthor] = useState('');
-  const [info, setInfo] = useState('');
+  const content = useField('content');
+  const author = useField('author');
+  const info = useField('info');
 
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     addNew({
-      content,
-      author,
-      info,
+      content: content.inputProps.value,
+      author: author.inputProps.value,
+      info: info.inputProps.value,
       votes: 0,
     });
-    setContent('');
-    setAuthor('');
-    setInfo('');
+    content.reset();
+    author.reset();
+    info.reset();
 
     navigate('/');
+  };
+
+  const resetAll = () => {
+    content.reset();
+    author.reset();
+    info.reset();
   };
 
   return (
@@ -106,29 +113,20 @@ const CreateNew = ({ addNew }) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input
-            name="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
+          <input {...content.inputProps} required />
         </div>
         <div>
           author
-          <input
-            name="author"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-          />
+          <input {...author.inputProps} required />
         </div>
         <div>
           url for more info
-          <input
-            name="info"
-            value={info}
-            onChange={(e) => setInfo(e.target.value)}
-          />
+          <input {...info.inputProps} required />
         </div>
-        <button>create</button>
+        <button type="submit">create</button>
+        <button type="button" onClick={() => resetAll()}>
+          reset
+        </button>
       </form>
     </div>
   );
