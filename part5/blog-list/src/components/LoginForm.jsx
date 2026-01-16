@@ -1,16 +1,33 @@
-import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { showNotification } from '../reducers/notificationReducer';
+import { appendUser } from '../reducers/userReducer';
 
-const LoginForm = ({ login }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+const LoginForm = () => {
+  const dispatch = useDispatch();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      const username = e.target.username.value;
+      const password = e.target.password.value;
+      e.target.username.value = '';
+      e.target.password.value = '';
 
-    login({ username, password });
-
-    setUsername('');
-    setPassword('');
+      await dispatch(appendUser({ username, password }));
+      dispatch(showNotification(`${username} logged in`, 'success', 5));
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        dispatch(
+          showNotification(
+            error.response.data.error || 'wrong username or password',
+            'error',
+            5
+          )
+        );
+      } else {
+        dispatch(showNotification('Wrong username or password', 'error', 5));
+      }
+    }
   };
 
   return (
@@ -19,19 +36,11 @@ const LoginForm = ({ login }) => {
       <form onSubmit={handleSubmit}>
         <label>
           username:
-          <input
-            type="text"
-            value={username}
-            onChange={({ target }) => setUsername(target.value)}
-          />
+          <input type="text" name="username" />
         </label>
         <label>
           password:
-          <input
-            type="password"
-            value={password}
-            onChange={({ target }) => setPassword(target.value)}
-          />
+          <input type="password" name="password" />
         </label>
         <button type="submit">login</button>
       </form>

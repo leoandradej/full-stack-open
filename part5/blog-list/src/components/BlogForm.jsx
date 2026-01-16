@@ -1,23 +1,43 @@
-import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { appendBlog } from '../reducers/blogReducer';
+import { showNotification } from '../reducers/notificationReducer';
 
-const BlogForm = ({ createBlog }) => {
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [url, setUrl] = useState('');
+const BlogForm = () => {
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    try {
+      e.preventDefault();
+      const title = e.target.title.value;
+      const author = e.target.author.value;
+      const url = e.target.url.value;
 
-    createBlog({
-      title: title,
-      author: author,
-      url: url,
-      likes: 0,
-    });
+      await dispatch(appendBlog({ title, author, url, likes: 0 }));
 
-    setTitle('');
-    setAuthor('');
-    setUrl('');
+      e.target.title.value = '';
+      e.target.author.value = '';
+      e.target.url.value = '';
+
+      dispatch(
+        showNotification(
+          `New blog: '${title}' by ${author} added`,
+          'success',
+          5
+        )
+      );
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        dispatch(
+          showNotification(
+            error.response.data.error || 'Error adding blog',
+            'error',
+            5
+          )
+        );
+      } else {
+        dispatch(showNotification('Error adding blog', 'error', 5));
+      }
+    }
   };
 
   return (
@@ -26,30 +46,15 @@ const BlogForm = ({ createBlog }) => {
       <form onSubmit={handleSubmit} className="blog-form">
         <label>
           title:
-          <input
-            type="text"
-            value={title}
-            onChange={({ target }) => setTitle(target.value)}
-            placeholder="write title here"
-          />
+          <input type="text" name="title" placeholder="write title here" />
         </label>
         <label>
           author:
-          <input
-            type="text"
-            value={author}
-            onChange={({ target }) => setAuthor(target.value)}
-            placeholder="write author here"
-          />
+          <input type="text" name="author" placeholder="write author here" />
         </label>
         <label>
           url:
-          <input
-            type="text"
-            value={url}
-            onChange={({ target }) => setUrl(target.value)}
-            placeholder="write url here"
-          />
+          <input type="text" name="url" placeholder="write url here" />
         </label>
 
         <button type="submit">create</button>
