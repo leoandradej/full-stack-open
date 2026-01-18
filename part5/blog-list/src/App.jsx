@@ -1,45 +1,32 @@
-import { useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import BlogForm from './components/BlogForm';
+import { useSelector } from 'react-redux';
+import { Route, Routes } from 'react-router-dom';
+import BlogDetails from './components/BlogDetails';
 import BlogsList from './components/BlogsList';
 import LoginForm from './components/LoginForm';
+import Navigation from './components/Navigation';
 import Notification from './components/Notification';
-import Toggable from './components/Togglable';
-import { fetchBlogs } from './reducers/blogReducer';
+import User from './components/User';
+import UsersList from './components/UsersList';
 import blogService from './services/blogs';
 
 const App = () => {
-  const dispatch = useDispatch();
   const user = useSelector(({ user }) => user);
   const notification = useSelector(({ notification }) => notification);
   const { message, status } = notification;
-
-  const blogFormRef = useRef();
-
-  useEffect(() => {
-    dispatch(fetchBlogs());
-  }, [dispatch]);
 
   if (user) blogService.setToken(user.token);
 
   return (
     <div className="wrapper">
-      {!user ? (
-        <>
-          <Notification message={message} className={status} />
-          <Toggable buttonLabel="login">
-            <LoginForm />
-          </Toggable>
-        </>
-      ) : (
-        <>
-          <Notification message={message} className={status} />
-          <BlogsList />
-          <Toggable buttonLabel="create a new blog">
-            <BlogForm />
-          </Toggable>
-        </>
-      )}
+      <Navigation />
+      <Notification message={message} className={status} />
+      <Routes>
+        <Route path="/" element={<BlogsList />} />
+        <Route path="/blogs/:id" element={<BlogDetails />} />
+        <Route path="/users" element={<UsersList />} />
+        <Route path="/users/:id" element={<User />} />
+        <Route path="/login" element={<LoginForm />} />
+      </Routes>
     </div>
   );
 };

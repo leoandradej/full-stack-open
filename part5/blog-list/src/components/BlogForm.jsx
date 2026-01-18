@@ -1,9 +1,10 @@
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { appendBlog } from '../reducers/blogReducer';
 import { showNotification } from '../reducers/notificationReducer';
 
 const BlogForm = () => {
   const dispatch = useDispatch();
+  const loading = useSelector(({ blogs }) => blogs.loading);
 
   const handleSubmit = async (e) => {
     try {
@@ -14,9 +15,7 @@ const BlogForm = () => {
 
       await dispatch(appendBlog({ title, author, url, likes: 0 }));
 
-      e.target.title.value = '';
-      e.target.author.value = '';
-      e.target.url.value = '';
+      e.target.reset();
 
       dispatch(
         showNotification(
@@ -26,17 +25,7 @@ const BlogForm = () => {
         )
       );
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        dispatch(
-          showNotification(
-            error.response.data.error || 'Error adding blog',
-            'error',
-            5
-          )
-        );
-      } else {
-        dispatch(showNotification('Error adding blog', 'error', 5));
-      }
+      dispatch(showNotification('Failed to create blog', 'error', 5));
     }
   };
 
@@ -46,18 +35,30 @@ const BlogForm = () => {
       <form onSubmit={handleSubmit} className="blog-form">
         <label>
           title:
-          <input type="text" name="title" placeholder="write title here" />
+          <input
+            type="text"
+            name="title"
+            placeholder="write title here"
+            required
+          />
         </label>
         <label>
           author:
-          <input type="text" name="author" placeholder="write author here" />
+          <input
+            type="text"
+            name="author"
+            placeholder="write author here"
+            required
+          />
         </label>
         <label>
           url:
-          <input type="text" name="url" placeholder="write url here" />
+          <input type="text" name="url" placeholder="write url here" required />
         </label>
 
-        <button type="submit">create</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Creating...' : 'create'}
+        </button>
       </form>
     </div>
   );

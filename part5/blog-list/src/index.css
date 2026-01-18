@@ -14,6 +14,10 @@ p {
   margin: 0;
 }
 
+nav a {
+  padding: 1rem;
+}
+
 button {
   display: inline-block;
   text-decoration: none;

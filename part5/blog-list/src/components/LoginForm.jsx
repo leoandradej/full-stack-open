@@ -1,19 +1,22 @@
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { showNotification } from '../reducers/notificationReducer';
 import { appendUser } from '../reducers/userReducer';
 
 const LoginForm = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
       const username = e.target.username.value;
       const password = e.target.password.value;
-      e.target.username.value = '';
-      e.target.password.value = '';
+
+      e.target.reset();
 
       await dispatch(appendUser({ username, password }));
+      navigate('/');
       dispatch(showNotification(`${username} logged in`, 'success', 5));
     } catch (error) {
       if (error.response && error.response.status === 401) {
