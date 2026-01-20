@@ -1,3 +1,23 @@
+import DeleteIcon from '@mui/icons-material/Delete';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import LinkIcon from '@mui/icons-material/Link';
+import SendIcon from '@mui/icons-material/Send';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  Divider,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -23,9 +43,26 @@ const BlogDetails = () => {
     dispatch(fetchBlogs());
   }, [dispatch]);
 
-  if (loading && !blog) return <div>Loading...</div>;
+  if (loading && !blog) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-  if (!blog) return <div>Blog not found</div>;
+  if (!blog) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 8 }}>
+        <Typography variant="h5" color="text.secondary">
+          Blog not found
+        </Typography>
+        <Button component={Link} to="/" sx={{ mt: 2 }}>
+          Back to Blogs
+        </Button>
+      </Box>
+    );
+  }
 
   const handleLike = async () => {
     try {
@@ -69,43 +106,134 @@ const BlogDetails = () => {
   };
 
   return (
-    <div>
-      <h2>{blog.title}</h2>
-      <p>Author: {blog.author}</p>
-      <p>{blog.url}</p>
-      <div className="likes">
-        <p className="likes-count">{blog.likes} likes</p>
-        <button onClick={handleLike}>like</button>
-      </div>
-      <p>
-        Added by <Link to={`/users/${blog.user.id}`}>{blog.user.name}</Link>
-      </p>
-      {currentUser?.username === blog.user.username && (
-        <button onClick={handleDelete}>remove</button>
-      )}
+    <Box>
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h4" component="h1" gutterBottom fontWeight={700}>
+            {blog.title}
+          </Typography>
 
-      <h3>Comments</h3>
+          <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+            by {blog.author}
+          </Typography>
 
-      <form onSubmit={handleAddComment}>
-        <input
-          type="text"
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          placeholder="write a comment..."
-        />
-        <button type="submit">Add Comment</button>
-      </form>
+          <Divider sx={{ my: 2 }} />
 
-      {blog.comments && blog.comments.length > 0 ? (
-        <ul>
-          {blog.comments.map((c, index) => (
-            <li key={index}>{c}</li>
-          ))}
-        </ul>
-      ) : (
-        <p>No comments yet</p>
-      )}
-    </div>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+            <LinkIcon color="action" fontSize="small" />
+            <Typography
+              component="a"
+              href={blog.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                color: 'primary.main',
+                textDecoration: 'none',
+                '&:hover': { textDecoration: 'underline' },
+              }}
+            >
+              {blog.url}
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+            <Chip
+              icon={<FavoriteIcon />}
+              label={`${blog.likes} likes`}
+              color="primary"
+              variant="outlined"
+            />
+            <Button
+              variant="contained"
+              startIcon={<FavoriteIcon />}
+              onClick={handleLike}
+              size="small"
+            >
+              Like
+            </Button>
+          </Box>
+
+          <Typography variant="body2" color="text.secondary">
+            Added by{' '}
+            <Link
+              to={`/users/${blog.user.id}`}
+              style={{ color: 'inherit', fontWeight: 600 }}
+            >
+              {blog.user.name}
+            </Link>
+          </Typography>
+
+          {currentUser?.username === blog.user.username && (
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              onClick={handleDelete}
+              sx={{ mt: 2 }}
+            >
+              Remove Blog
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+
+      <Paper sx={{ p: 3 }}>
+        <Typography variant="h5" gutterBottom fontWeight={600}>
+          Comments
+        </Typography>
+
+        <Box
+          component="form"
+          onSubmit={handleAddComment}
+          sx={{ display: 'flex', gap: 1, mb: 3 }}
+        >
+          <TextField
+            fullWidth
+            size="small"
+            placeholder="Write a comment..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+          <IconButton
+            type="submit"
+            color="primary"
+            disabled={!comment.trim()}
+            sx={{
+              bgcolor: 'primary.main',
+              color: 'white',
+              '&:hover': { bgcolor: 'primary.dark' },
+              '&:disabled': { bgcolor: 'action.disabledBackground' },
+            }}
+          >
+            <SendIcon />
+          </IconButton>
+        </Box>
+
+        {blog.comments && blog.comments.length > 0 ? (
+          <List>
+            {blog.comments.map((c, index) => (
+              <ListItem
+                key={index}
+                sx={{
+                  bgcolor: index % 2 === 0 ? 'action.hover' : 'transparent',
+                  borderRadius: 1,
+                  mb: 0.5,
+                }}
+              >
+                <ListItemText
+                  primary={c}
+                  primaryTypographyProps={{ variant: 'body2' }}
+                />
+              </ListItem>
+            ))}
+          </List>
+        ) : (
+          <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
+            No comments yet. Be the first to comment!
+          </Typography>
+        )}
+      </Paper>
+    </Box>
   );
 };
 

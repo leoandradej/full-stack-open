@@ -1,3 +1,4 @@
+import { Box, Container } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { Route, Routes } from 'react-router-dom';
 import BlogDetails from './components/BlogDetails';
@@ -17,17 +18,29 @@ const App = () => {
   if (user) blogService.setToken(user.token);
 
   return (
-    <div className="wrapper">
+    <Box
+      sx={{
+        minHeight: '100vh',
+        backgroundColor: 'background.default',
+      }}
+    >
       <Navigation />
-      <Notification message={message} className={status} />
-      <Routes>
-        <Route path="/" element={<BlogsList />} />
-        <Route path="/blogs/:id" element={<BlogDetails />} />
-        <Route path="/users" element={<UsersList />} />
-        <Route path="/users/:id" element={<User />} />
-        <Route path="/login" element={<LoginForm />} />
-      </Routes>
-    </div>
+
+      <Container
+        maxWidth="lg"
+        sx={{ py: { xs: 3, md: 5 }, px: { xs: 2, sm: 3 } }}
+      >
+        <Notification message={message} status={status} />
+
+        <Routes>
+          <Route path="/" element={<BlogsList />} />
+          <Route path="/blogs/:id" element={<BlogDetails />} />
+          <Route path="/users" element={<UsersList />} />
+          <Route path="/users/:id" element={<User />} />
+          <Route path="/login" element={<LoginForm />} />
+        </Routes>
+      </Container>
+    </Box>
   );
 };
 
