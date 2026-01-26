@@ -1,16 +1,13 @@
-import { useMutation, useQuery } from '@apollo/client/react';
+import { useMutation } from '@apollo/client/react';
 import { useState } from 'react';
 import { ALL_AUTHORS, EDIT_AUTHOR } from '../queries';
 
-const AuthorBirthYearForm = ({ setError }) => {
-  const [name, setName] = useState('');
+const EditAuthorForm = ({ authors, setError }) => {
+  const [name, setName] = useState(authors[0].name);
   const [birthYear, setBirthYear] = useState('');
 
-  const result = useQuery(ALL_AUTHORS);
-
-  const authors = result.data.allAuthors;
-
   const [changeBirthYear] = useMutation(EDIT_AUTHOR, {
+    refetchQueries: [{ query: ALL_AUTHORS }],
     onCompleted: (data) => {
       if (!data.editAuthor) {
         setError('Author not found');
@@ -22,9 +19,14 @@ const AuthorBirthYearForm = ({ setError }) => {
   const submit = (e) => {
     e.preventDefault();
 
+    if (birthYear < 1000 || birthYear > 9999) {
+      setError('Birth year must be a four-digit year (e.g., 1952)');
+      return;
+    }
+
     changeBirthYear({ variables: { name, setBornTo: birthYear } });
 
-    setName('');
+    setName(authors[0].name);
     setBirthYear('');
   };
   return (
@@ -55,4 +57,4 @@ const AuthorBirthYearForm = ({ setError }) => {
   );
 };
 
-export default AuthorBirthYearForm;
+export default EditAuthorForm;

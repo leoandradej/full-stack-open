@@ -14,13 +14,21 @@ const NewBook = ({ setError }) => {
 
   const [createBook] = useMutation(CREATE_BOOK, {
     refetchQueries: [{ query: ALL_AUTHORS }, { query: ALL_BOOKS }],
-    onError: (error) => setError(error.message),
+    onError: (error) => {
+      const errors = error.graphQLErrors[0]?.extensions?.error?.errors;
+      const messages = Object.values(errors || {})
+        .map((e) => e.message)
+        .join('\n');
+      setError(messages || error.message);
+    },
   });
 
   const submit = async (event) => {
     event.preventDefault();
 
-    createBook({ variables: { title, author, published, genres } });
+    createBook({
+      variables: { title, author, published: Number(published), genres },
+    });
 
     setTitle('');
     setPublished('');
@@ -58,7 +66,7 @@ const NewBook = ({ setError }) => {
           <input
             type="number"
             value={published}
-            onChange={({ target }) => setPublished(Number(target.value))}
+            onChange={({ target }) => setPublished(target.value)}
           />
         </div>
         <div>

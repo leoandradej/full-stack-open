@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client/react';
 import { ALL_AUTHORS } from '../queries';
-import AuthorBirthYearForm from './AuthorBirthYearForm';
+import EditAuthorForm from './EditAuthorForm';
 
 const Authors = ({ setError }) => {
   const result = useQuery(ALL_AUTHORS);
@@ -29,7 +29,7 @@ const Authors = ({ setError }) => {
         </tbody>
       </table>
 
-      <AuthorBirthYearForm setError={setError} />
+      <EditAuthorForm authors={authors} setError={setError} />
     </div>
   );
 };
