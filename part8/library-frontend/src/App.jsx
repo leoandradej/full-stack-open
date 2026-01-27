@@ -1,4 +1,4 @@
-import { useApolloClient } from '@apollo/client/react';
+import { useApolloClient, useSubscription } from '@apollo/client/react';
 import { useState } from 'react';
 import { Link, Route, Routes } from 'react-router-dom';
 import Authors from './components/Authors';
@@ -6,6 +6,8 @@ import Books from './components/Books';
 import LoginForm from './components/LoginForm';
 import NewBook from './components/NewBook';
 import Notify from './components/Notify';
+import { BOOK_ADDED } from './queries';
+import { addBookToCache } from './utils/apolloCache';
 
 const App = () => {
   const [token, setToken] = useState(
@@ -14,7 +16,15 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null);
 
   const client = useApolloClient();
-  console.log(client);
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data, client }) => {
+      const addedBook = data.data.bookAdded;
+      notify(`${addedBook.title} added`);
+
+      addBookToCache(client.cache, addedBook);
+    },
+  });
 
   const onLogout = () => {
     setToken(null);
