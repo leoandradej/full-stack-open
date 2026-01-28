@@ -1,3 +1,5 @@
+require.main === module;
+
 interface BMIValues {
   height: number;
   weight: number;
@@ -18,7 +20,7 @@ const parseArguments = (args: string[]): BMIValues => {
   }
 };
 
-const calculateBmi = (height: number, weight: number) => {
+export const calculateBmi = (height: number, weight: number) => {
   const heightInMeters = height / 100;
   const bmi = Number((weight / (heightInMeters * heightInMeters)).toFixed(2));
 

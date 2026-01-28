@@ -36,7 +36,7 @@ const parseExerciseArguments = (args: string[]): ExerciseValues => {
   };
 };
 
-const exerciseCalculator = (
+export const exerciseCalculator = (
   target: number,
   trainingHoursPerDay: number[],
 ): Results => {
