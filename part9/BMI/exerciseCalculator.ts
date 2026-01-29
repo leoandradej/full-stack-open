@@ -71,13 +71,15 @@ export const exerciseCalculator = (
   };
 };
 
-try {
-  const { target, trainingHours } = parseExerciseArguments(process.argv);
-  console.log(exerciseCalculator(target, trainingHours));
-} catch (error: unknown) {
-  let errorMessage = "Something bad happened";
-  if (error instanceof Error) {
-    errorMessage += " Error " + error.message;
+if (require.main === module) {
+  try {
+    const { target, trainingHours } = parseExerciseArguments(process.argv);
+    console.log(exerciseCalculator(target, trainingHours));
+  } catch (error: unknown) {
+    let errorMessage = "Something bad happened";
+    if (error instanceof Error) {
+      errorMessage += " Error " + error.message;
+    }
+    console.log(errorMessage);
   }
-  console.log(errorMessage);
 }
