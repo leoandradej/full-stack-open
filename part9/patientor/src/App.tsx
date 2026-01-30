@@ -30,10 +30,19 @@ const App = () => {
           <Button component={Link} to="/" variant="contained" color="primary">
             Home
           </Button>
+          <Button
+            component={Link}
+            to="/patients"
+            variant="contained"
+            color="primary"
+          >
+            Patients
+          </Button>
           <Divider hidden />
           <Routes>
+            <Route path="/" element={<h1>Home</h1>} />
             <Route
-              path="/"
+              path="/patients"
               element={
                 <PatientListPage
                   patients={patients}
