@@ -10,9 +10,9 @@ app.use(express.json());
 
 const PORT = 3000;
 
-app.get("/api/patients", patientRouter);
+app.use("/api/patients", patientRouter);
 
-app.get("/api/diagnoses", diagnoseRouter);
+app.use("/api/diagnoses", diagnoseRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
