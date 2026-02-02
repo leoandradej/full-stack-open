@@ -1,8 +1,17 @@
+import {
+  Box,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import axios from "axios";
 import { useState } from "react";
-import { Box, Table, Button, TableHead, Typography, TableCell, TableRow, TableBody } from '@mui/material';
-import axios from 'axios';
 
-import { PatientFormValues, Patient } from "../../types";
+import { Patient, PatientFormValues } from "../../types";
 import AddPatientModal from "../AddPatientModal";
 
 import HealthRatingBar from "../HealthRatingBar";
@@ -10,12 +19,11 @@ import HealthRatingBar from "../HealthRatingBar";
 import patientService from "../../services/patients";
 
 interface Props {
-  patients : Patient[]
-  setPatients: React.Dispatch<React.SetStateAction<Patient[]>>
+  patients: Patient[];
+  setPatients: React.Dispatch<React.SetStateAction<Patient[]>>;
 }
 
-const PatientListPage = ({ patients, setPatients } : Props ) => {
-
+const PatientListPage = ({ patients, setPatients }: Props) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [error, setError] = useState<string>();
 
@@ -33,16 +41,27 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
       setModalOpen(false);
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
-        if (e?.response?.data && typeof e?.response?.data === "string") {
-          const message = e.response.data.replace('Something went wrong. Error: ', '');
-          console.error(message);
-          setError(message);
+        if (e.response?.data) {
+          const data = e.response.data;
+
+          if (typeof data === "object" && "error" in data) {
+            setError(data.error);
+          } else if (typeof data === "string") {
+            const message = e.response.data.replace(
+              "Something went wrong. Error: ",
+              "",
+            );
+            console.error(message);
+            setError(message);
+          } else {
+            setError("Invalid error format from server");
+          }
         } else {
-          setError("Unrecognized axios error");
+          setError("No response from server");
         }
       } else {
         console.error("Unknown error", e);
-        setError("Unknown error");
+        setError("Unknown error occurred");
       }
     }
   };
