@@ -1,0 +1,18 @@
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+p {
+  margin: 0;
+}
+
+.part {
+  display: flex;
+  flex-direction: column;
+}
+
+.description {
+  font-style: italic;
+}
