@@ -1,19 +1,33 @@
 import { v1 as uuid } from "uuid";
 import patients from "../../data/patients";
-import { NewPatient, Patient, PatientFormValues } from "../types";
+import {
+  Entry,
+  NewEntry,
+  NewPatient,
+  NonSensitivePatient,
+  Patient,
+} from "../types";
 
 const getPatients = (): Patient[] => {
   return patients;
 };
 
-const getPatientFormValues = (): PatientFormValues[] => {
-  return patients.map(({ id, name, occupation, gender, dateOfBirth }) => ({
-    id,
-    name,
-    occupation,
-    gender,
-    dateOfBirth,
-  }));
+const getPatientFormValues = (): NonSensitivePatient[] => {
+  return patients.map(
+    ({ id, name, occupation, gender, dateOfBirth, entries }) => ({
+      id,
+      name,
+      occupation,
+      gender,
+      dateOfBirth,
+      entries,
+    }),
+  );
+};
+
+const findPatientById = (id: string): Patient | undefined => {
+  const patient = patients.find((p) => p.id === id);
+  return patient;
 };
 
 const addNewPatient = (patient: NewPatient): Patient => {
@@ -27,4 +41,20 @@ const addNewPatient = (patient: NewPatient): Patient => {
   return newPatient;
 };
 
-export default { getPatients, getPatientFormValues, addNewPatient };
+const addEntry = (patient: Patient, entry: NewEntry): Entry => {
+  const newEntry: Entry = {
+    id: uuid(),
+    ...entry,
+  };
+
+  patient.entries.push(newEntry);
+  return newEntry;
+};
+
+export default {
+  getPatients,
+  getPatientFormValues,
+  findPatientById,
+  addNewPatient,
+  addEntry,
+};

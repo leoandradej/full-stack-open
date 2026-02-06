@@ -1,18 +1,37 @@
 import express, { NextFunction, Request, Response } from "express";
 import z from "zod";
 import patientService from "../services/patientService";
-import { NewPatient, Patient, PatientFormValues } from "../types";
-import { newPatientSchema } from "../utils";
+import { NewEntry, NewPatient, NonSensitivePatient, Patient } from "../types";
+import { newEntrySchema, newPatientSchema } from "../utils";
 
 const router = express.Router();
 
-router.get("/", (_req, res: Response<PatientFormValues[]>) => {
+router.get("/", (_req, res: Response<NonSensitivePatient[]>) => {
   res.json(patientService.getPatientFormValues());
+});
+
+router.get("/:id", (req: Request, res: Response) => {
+  const patient = patientService.findPatientById(String(req.params.id));
+
+  if (patient) {
+    res.send(patient);
+  } else {
+    res.sendStatus(404).send({ error: "Patient not found" });
+  }
 });
 
 const newPatientParser = (req: Request, _res: Response, next: NextFunction) => {
   try {
     newPatientSchema.parse(req.body);
+    next();
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+const newEntryParser = (req: Request, _res: Response, next: NextFunction) => {
+  try {
+    newEntrySchema.parse(req.body);
     next();
   } catch (error: unknown) {
     next(error);
@@ -45,6 +64,22 @@ router.post(
   (req: Request<unknown, unknown, NewPatient>, res: Response<Patient>) => {
     const addedPatient = patientService.addNewPatient(req.body);
     res.json(addedPatient);
+  },
+);
+
+router.post(
+  "/:id/entries",
+  newEntryParser,
+  (req: Request<{ id: string }, unknown, NewEntry>, res: Response) => {
+    const patient = patientService.findPatientById(req.params.id);
+
+    if (!patient) {
+      res.status(404).send({ error: "Patient not found" });
+      return;
+    }
+
+    const addedEntry = patientService.addEntry(patient, req.body);
+    res.json(addedEntry);
   },
 );
 

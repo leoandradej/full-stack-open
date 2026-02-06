@@ -11,11 +11,12 @@ import {
 import axios from "axios";
 import { useState } from "react";
 
-import { Patient, PatientFormValues } from "../../types";
+import { NewPatient, Patient } from "../../types";
 import AddPatientModal from "../AddPatientModal";
 
 import HealthRatingBar from "../HealthRatingBar";
 
+import { Link } from "react-router-dom";
 import patientService from "../../services/patients";
 
 interface Props {
@@ -34,7 +35,7 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
     setError(undefined);
   };
 
-  const submitNewPatient = async (values: PatientFormValues) => {
+  const submitNewPatient = async (values: NewPatient) => {
     try {
       const patient = await patientService.create(values);
       setPatients(patients.concat(patient));
@@ -85,7 +86,9 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
         <TableBody>
           {Object.values(patients).map((patient: Patient) => (
             <TableRow key={patient.id}>
-              <TableCell>{patient.name}</TableCell>
+              <TableCell>
+                <Link to={`/patients/${patient.id}`}>{patient.name}</Link>
+              </TableCell>
               <TableCell>{patient.gender}</TableCell>
               <TableCell>{patient.occupation}</TableCell>
               <TableCell>
